@@ -1,0 +1,191 @@
+:root {
+  --header-background: #1f1f1f;
+  --body-background: #121212;
+  --children-background: #1e1e1e;
+}
+
+body {
+  color: #e1e1e1;
+  background: var(--body-background);
+  font-family: sans-serif;
+}
+
+header {
+  background: var(--header-background);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+header > div {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 7px 14px;
+  flex: 1;
+}
+
+.logo {
+  height: 77px;
+  border-radius: 7%;
+}
+.menu-icon {
+  font-size: 245%;
+  padding: 7px;
+  margin: 0 21px;
+  justify-self: flex-end;
+}
+
+.middle {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+}
+main {
+  padding: 49px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  gap: 35px;
+}
+
+/* POSTS */
+
+.post {
+  width: 700px;
+  background: var(--children-background);
+  padding: 3vh;
+  font-size: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 21px;
+  gap: 5px;
+}
+
+.post > div.post-content {
+  align-self: flex-start;
+  gap: 12px;
+}
+.post > div {
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+}
+.post > div.profile {
+  margin: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.post span,
+.post p {
+  font-size: 1.1rem;
+}
+
+.post > div.profile > img {
+  margin-right: 5px;
+}
+
+.post > footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+.post > footer > div.comments {
+  background-color: #222;
+  border-radius: 15px;
+  padding: 5px 15px;
+  font-size: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.post > footer > .stats,
+.post > footer > .description > .author {
+  font-weight: 600;
+  margin-right: 5px;
+}
+
+.post > footer > .comments > .comment-creator {
+  display: flex;
+  flex-direction: row;
+}
+.post > footer > .comments > .comment-creator > input {
+  padding: 5px 15px;
+  display: flex;
+  flex: 1;
+  font-size: 21px;
+  background-color: var(--background-color);
+  border: 1px solid white;
+  border-radius: 100px;
+  color: #fff;
+}
+.post > footer > .comments > .comment-creator > span {
+  font-size: 25px;
+  background-color: var(--background-color);
+  border: none;
+  border-radius: 100px;
+  color: #fff;
+}
+span.author {
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+  /* Zrób by max widt */
+  flex: 0 1 350px;
+  /* max-width: 100px; */
+  background-color: var(--header-background);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 21px;
+  gap: 14px;
+}
+
+.sidebar > a {
+  /* Troche jaśniejszy kwadrat z paddingiem  */
+  width: 161px;
+  font-size: 1.7em;
+  background-color: #333;
+  padding: 14px;
+  border-left: 7px solid rgb(23, 0, 128);
+  transition: 50ms linear;
+}
+.sidebar > a:hover {
+  border-left: 14px solid rgb(23, 0, 128);
+}
+
+/* SHARED */
+
+:root {
+  --avatar-border-color: rgb(0, 0, 0);
+}
+
+img.avatar {
+  box-sizing: content-box;
+  border-radius: 50%;
+  border: 2px solid var(--avatar-border-color);
+}
+img.avatar.medium {
+  width: 44px;
+  height: 44px;
+}
+
+div.line {
+  display: flex;
+  flex-direction: row;
+  background: #ffffff;
+  height: 1px;
+}
