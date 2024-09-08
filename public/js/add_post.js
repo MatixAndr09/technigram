@@ -35,7 +35,7 @@ document
       const newPost = await response.json();
       console.log("Added new post:", newPost);
 
-      window.location.replace("http://127.0.0.1:3000/home.html");
+      window.location.replace("http://127.0.0.1:3000/index.html");
     } catch (error) {
       console.error("Error adding post:", error);
       errorDiv.textContent = error.message;

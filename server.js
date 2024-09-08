@@ -163,7 +163,7 @@ app.get(
               username: "${req.user.username}"
             }));
             // Redirect to the new URL
-            window.location.replace("/home.html");
+            window.location.replace("/index.html");
           </script>
         </body>
       </html>
