@@ -65,8 +65,7 @@ passport.use(
       clientID:
         "1018719524838-7p1djmo9b4nkm8osvt0jbp37fup7ba9l.apps.googleusercontent.com",
       clientSecret: "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",
-      callbackURL:
-        "https://technigram-server.onrender.com/auth/google/callback",
+      callbackURL: "https://technigram.onrender.com/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       const client = new Client({
