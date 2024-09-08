@@ -53,3 +53,12 @@ img {
 button {
   color: inherit;
 }
+
+/* Aw shi mb gng, im adding icon to reset */
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  padding: 14px;
+  border-radius: 50%;
+  border: 1px solid #4b4b4b;
+}

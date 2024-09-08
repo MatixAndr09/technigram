@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "express-rate-limit": "^7.4.0",
+    "passport-google-oauth20": "^2.0.0",
+    "rate-limit-redis": "^4.2.0",
+    "redis": "^4.7.0",
+    "xss": "^1.0.15"
+  }
+}
