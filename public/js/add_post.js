@@ -16,7 +16,7 @@ document
       const currentUser = JSON.parse(currentUserData);
       const creatorId = currentUser.id;
 
-      const response = await fetch("http://localhost:3000/posts", {
+      const response = await fetch("https://technigram.onrender.com/posts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,7 +35,7 @@ document
       const newPost = await response.json();
       console.log("Added new post:", newPost);
 
-      window.location.replace("http://127.0.0.1:3000/index.html");
+      window.location.replace("https://technigram.onrender.com/index.html");
     } catch (error) {
       console.error("Error adding post:", error);
       errorDiv.textContent = error.message;

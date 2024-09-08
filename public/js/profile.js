@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const profilePictureImg = document.querySelector("#profilePicture");
   try {
     const response = await fetch(
-      `http://localhost:3000/profilePicture/${currentUserId}`
+      `https://technigram.onrender.com/profilePicture/${currentUserId}`
     );
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);

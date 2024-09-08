@@ -491,5 +491,5 @@ app.get("/healthcheck", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running at https://localhost:${port}`);
+  console.log(`Server is running at https://technigram.onrender.com`);
 });
