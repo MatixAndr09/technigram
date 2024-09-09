@@ -12,7 +12,7 @@ const client = new Client({
   ssl: sslConfig,
 });
 
-const method = "select"; //  "create"/"insert"/"select"/"select where"/"drop"/"update"/"delete"
+const method = "alter"; //  "create"/"insert"/"select"/"select where"/"drop"/"update"/"delete"
 
 const dropTablesQuery = `
 DROP TABLE IF EXISTS users CASCADE;
@@ -21,7 +21,7 @@ DROP TABLE IF EXISTS users CASCADE;
 // DROP TABLE IF EXISTS posts CASCADE;
 
 const createTablesQuery = `
-CREATE TABLE users
+CREATE TABLE users 
 (
   id SERIAL PRIMARY KEY,
   username VARCHAR(255) NOT NULL,
@@ -57,22 +57,31 @@ const insertPostQuery = `INSERT INTO posts (post_id, creator_id, title, content,
 // INSERT INTO posts (post_id, creator_id, title, content, likes) VALUES (2, 1, 'Technigram 0.3.2v DevLog', 'Well, uh, działają pfp w dużym skrócie. Pozostało jeszcze tylko, post making, post matching, login, register, actually being logged in, and much more things that im to lazy to talk about', 7);
 
 // const selectQuery = "SELECT * FROM users";
-const selectQuery = "SELECT * FROM posts";
-// const selectQuery = "SELECT last_value FROM users_id_seq;";
-// const selectQuery = "SELECT id, username, email, password, profile_picture FROM users";
+// const selectQuery = "SELECT * FROM posts";
+// const selectQuery = "SELECT * FROM comments";
 // const selectQuery = "SELECT last_value FROM public.posts_post_id_seq;";
+const selectQuery =
+  "SELECT pg_get_serial_sequence('comments', 'comment_id') AS sequence_name;";
+// "SELECT pg_get_serial_sequence('users', 'id') AS sequence_name;";
+// "SELECT setval('public.posts_post_id_seq', (SELECT MAX(id) FROM users));";
+
+// const selectQuery = "SELECT MAX(post_id) FROM posts;";
+
+// const selectQuery = "SELECT id, username, email, password, profile_picture FROM users";
 // const selectQuery = "SELECT MAX(post_id) FROM posts;";
 // const selectQuery =
-// "SELECT pg_get_serial_sequence('posts', 'post_id') AS sequence_name;";
-// "SELECT setval(pg_get_serial_sequence('post_id'), MAX(post_id)) FROM posts;";
+//   "SELECT pg_get_serial_sequence('posts', 'post_id') AS sequence_name;";
 
 //
 
 // "SELECT * FROM comments WHERE comment_creator_id NOT IN (SELECT id FROM users)";
 const selectWhereQuery = "SELECT * FROM posts WHERE post_id = 1";
-const updateQuery = "UPDATE users SET email = 'mkazm@gmail.com' WHERE id = 1";
-const deleteQuery = "DELETE FROM comments WHERE post_id = 3";
-const alterQuery = "ALTER TABLE users ADD COLUMN ;";
+const updateQuery = "UPDATE posts SET post_id = 6 WHERE post_id = 13";
+const deleteQuery = "DELETE FROM posts WHERE creator_id = 7";
+const alterQuery = `ALTER TABLE users
+ADD COLUMN last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Adds last_activity with default to current time
+ADD COLUMN timeout TIMESTAMP DEFAULT NULL;                     -- Adds timeout which can be set to NULL or a specific time
+`;
 
 async function executeQuery(method) {
   try {

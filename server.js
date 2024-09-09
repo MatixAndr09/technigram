@@ -6,6 +6,7 @@ const { Client } = require("pg");
 const session = require("express-session");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const xss = require("xss");
 
 const app = express();
 const port = 3000;
@@ -21,6 +22,8 @@ app.use(
     saveUninitialized: true,
   })
 );
+
+const emailPattern = /^u\d{3}_[a-z]{6}_[a-z]{3}@technischools\.com$/;
 
 // Initialize Passport.js
 app.use(passport.initialize());
@@ -68,6 +71,13 @@ passport.use(
       callbackURL: "https://technigram.onrender.com/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
+      const email = profile.emails[0].value;
+
+      // Validate email pattern
+      if (!emailPattern.test(email)) {
+        return done(null, false, { message: "Invalid email format" });
+      }
+
       const client = new Client({
         connectionString: connectionString,
         ssl: sslConfig,
@@ -78,7 +88,7 @@ passport.use(
 
         const selectUserQuery = {
           text: "SELECT id, username FROM users WHERE email = $1",
-          values: [profile.emails[0].value],
+          values: [email],
         };
 
         const result = await client.query(selectUserQuery);
@@ -93,11 +103,7 @@ passport.use(
               VALUES ($1, $2, $3)
               RETURNING id, username, email
             `,
-            values: [
-              profile.displayName,
-              profile.emails[0].value,
-              profile.photos[0].value,
-            ],
+            values: [profile.displayName, email, profile.photos[0].value],
           };
 
           const insertResult = await client.query(insertUserQuery);
@@ -462,6 +468,48 @@ app.post("/posts", postCommentLimiter, async (req, res) => {
   try {
     await client.connect();
 
+    const selectUserQuery = {
+      text: `
+        SELECT last_activity, timeout FROM users
+        WHERE id = $1
+      `,
+      values: [creator_id],
+    };
+    const userResult = await client.query(selectUserQuery);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const { last_activity, timeout } = userResult.rows[0];
+
+    // Check if the user is in timeout
+    const currentTime = new Date();
+    if (timeout && currentTime < new Date(timeout)) {
+      return res.status(403).json({
+        error:
+          "You are currently blocked. Please wait until your timeout expires.",
+      });
+    }
+
+    // Check if the last activity was less than 1 second ago
+    if (last_activity && currentTime - new Date(last_activity) < 1000) {
+      return res.status(429).json({
+        error:
+          "You are posting too quickly. Please wait at least 1 second before trying again.",
+      });
+    }
+
+    // Update the user's last activity timestamp
+    const updateLastActivityQuery = {
+      text: `
+        UPDATE users
+        SET last_activity = $1
+        WHERE id = $2
+      `,
+      values: [currentTime, creator_id],
+    };
+
+    await client.query(updateLastActivityQuery);
+
     const insertPostQuery = {
       text: `
         INSERT INTO posts (creator_id, title, content)
@@ -478,6 +526,38 @@ app.post("/posts", postCommentLimiter, async (req, res) => {
   } catch (err) {
     console.error("Error adding post:", err);
     res.status(500).json({ error: "Failed to add post" });
+  } finally {
+    await client.end();
+  }
+});
+
+app.post("/reset-seq", async (req, res) => {
+  const client = new Client({
+    connectionString: connectionString,
+    ssl: sslConfig,
+  });
+
+  try {
+    await client.connect();
+
+    const resetCommentSeqQuery = `
+      SELECT setval('public.comments_comment_id_seq', (SELECT MAX(comment_id) FROM comments));
+    `;
+    const resetUserSeqQuery = `
+      SELECT setval('public.users_id_seq', (SELECT MAX(id) FROM users));
+    `;
+    const resetPostSeqQuery = `
+      SELECT setval('public.posts_post_id_seq', (SELECT MAX(post_id) FROM posts));
+    `;
+
+    await client.query(resetCommentSeqQuery);
+    await client.query(resetUserSeqQuery);
+    await client.query(resetPostSeqQuery);
+
+    res.status(200).json({ message: "Sequences reset successfully" });
+  } catch (err) {
+    console.error("Error resetting sequences:", err);
+    res.status(500).json({ error: "Failed to reset sequences" });
   } finally {
     await client.end();
   }
