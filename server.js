@@ -7,6 +7,8 @@ const session = require("express-session");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const xss = require("xss");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const port = 3000;
@@ -44,7 +46,7 @@ const postCommentLimiter = rateLimit({
     if (req.rateLimit && req.rateLimit.current > 50) {
       return 10; // Reduce max requests to 10 if user exceeds 50 in current window
     }
-    return 5; // Default max requests per 15 minutes
+    return 20; // Default max requests per 15 minutes
   },
   message:
     "Too many requests for posting or commenting. Please try again after 15 minutes.",
@@ -60,6 +62,17 @@ const postCommentLimiter = rateLimit({
     });
   },
 });
+
+const generateToken = (user) => {
+  const tokenPayload = { id: user.id, username: user.username };
+  const token = jwt.sign(tokenPayload, "your-secret-key", { expiresIn: "1h" });
+  return token;
+};
+
+// Hash token using SHA-256
+const hashToken = (token) => {
+  return crypto.createHash("sha256").update(token).digest("hex");
+};
 
 // Passport.js Google OAuth configuration
 passport.use(
@@ -110,7 +123,19 @@ passport.use(
           user = insertResult.rows[0];
         }
 
-        return done(null, user);
+        // Generate and hash the token
+        const token = generateToken(user);
+        const hashedToken = hashToken(token);
+
+        // Store the hashed token in the database
+        const updateTokenQuery = {
+          text: "UPDATE users SET token = $1 WHERE id = $2",
+          values: [hashedToken, user.id],
+        };
+        await client.query(updateTokenQuery);
+
+        // Store the token in session
+        return done(null, { ...user, token });
       } catch (err) {
         console.error("Error handling Google login:", err);
         return done(err, null);
@@ -122,7 +147,7 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, { id: user.id, username: user.username });
+  done(null, { id: user.id, username: user.username, token: user.token });
 });
 
 passport.deserializeUser(async (user, done) => {
@@ -142,7 +167,7 @@ passport.deserializeUser(async (user, done) => {
     const result = await client.query(selectUserQuery);
     const dbUser = result.rows[0];
 
-    done(null, dbUser);
+    done(null, { dbUser, token: user.token });
   } catch (err) {
     done(err, null);
   } finally {
@@ -177,15 +202,40 @@ app.get(
   }
 );
 
-app.get("/logout", (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      console.error("Logout error:", err);
-      return res.status(500).json({ error: "Failed to log out" });
-    }
-    res.redirect("/");
+const verifyToken = async (req, res, next) => {
+  const token = req.session.token || null;
+  if (!token) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+
+  // Hash the token and compare with the stored hash
+  const hashedToken = hashToken(token);
+
+  const client = new Client({
+    connectionString: connectionString,
+    ssl: sslConfig,
   });
-});
+  try {
+    await client.connect();
+
+    const query = {
+      text: "SELECT token FROM users WHERE id = $1",
+      values: [req.user.id],
+    };
+
+    const result = await client.query(query);
+    if (result.rows.length === 0 || result.rows[0].token !== hashedToken) {
+      return res.status(403).json({ error: "Invalid token" });
+    }
+
+    next(); // Token is valid, proceed
+  } catch (err) {
+    console.error("Token verification error:", err);
+    return res.status(500).json({ error: "Failed to verify token" });
+  } finally {
+    await client.end();
+  }
+};
 
 async function fetchProfilePicture(user_id) {
   const client = new Client({
@@ -351,67 +401,73 @@ app.get("/posts/:post_id", async (req, res) => {
   }
 });
 
-app.post("/posts/:post_id/comments", postCommentLimiter, async (req, res) => {
-  const post_id = req.params.post_id;
-  const { comment_content, comment_creator_id } = req.body;
+app.post(
+  "/posts/:post_id/comments",
+  verifyToken,
+  postCommentLimiter,
+  async (req, res) => {
+    const post_id = req.params.post_id;
+    const { comment_content, comment_creator_id } = req.body;
 
-  if (!comment_content || !comment_creator_id) {
-    return res
-      .status(400)
-      .json({ error: "Comment content and creator ID are required" });
-  }
+    if (!comment_content || !comment_creator_id) {
+      return res
+        .status(400)
+        .json({ error: "Comment content and creator ID are required" });
+    }
 
-  if (comment_content.length > 500) {
-    return res
-      .status(400)
-      .json({ error: "Lenght of the text cannot exceed 500 letters" });
-  }
+    if (comment_content.length > 500) {
+      return res
+        .status(400)
+        .json({ error: "Lenght of the text cannot exceed 500 letters" });
+    }
 
-  const sanitizedCommentContent = xss(comment_content);
+    const sanitizedCommentContent = xss(comment_content);
 
-  const client = new Client({
-    connectionString: connectionString,
-    ssl: sslConfig,
-  });
+    const client = new Client({
+      connectionString: connectionString,
+      ssl: sslConfig,
+    });
 
-  try {
-    await client.connect();
+    try {
+      await client.connect();
 
-    const insertCommentQuery = {
-      text: `
+      const insertCommentQuery = {
+        text: `
         INSERT INTO comments (post_id, comment_creator_id, comment_content)
         VALUES ($1, $2, $3)
         RETURNING comment_id, comment_creator_id, comment_content
       `,
-      values: [post_id, comment_creator_id, sanitizedCommentContent],
-    };
+        values: [post_id, comment_creator_id, sanitizedCommentContent],
+      };
 
-    const insertResult = await client.query(insertCommentQuery);
-    const newComment = insertResult.rows[0];
+      const insertResult = await client.query(insertCommentQuery);
+      const newComment = insertResult.rows[0];
 
-    const selectCommentUserQuery = {
-      text: `
+      const selectCommentUserQuery = {
+        text: `
         SELECT username FROM users
         WHERE id = $1
       `,
-      values: [newComment.comment_creator_id],
-    };
+        values: [newComment.comment_creator_id],
+      };
 
-    const commentUserResult = await client.query(selectCommentUserQuery);
-    const commentUsername = commentUserResult.rows[0].username;
+      const commentUserResult = await client.query(selectCommentUserQuery);
+      const commentUsername = commentUserResult.rows[0].username;
 
-    res.json({
-      ...newComment,
-      username: commentUsername,
-    });
-  } catch (err) {
-    console.error("Error adding comment:", err);
-    res.status(500).json({ error: "Failed to add comment" });
-  } finally {
-    await client.end();
+      res.json({
+        ...newComment,
+        username: commentUsername,
+      });
+    } catch (err) {
+      console.error("Error adding comment:", err);
+      res.status(500).json({ error: "Failed to add comment" });
+    } finally {
+      await client.end();
+    }
   }
-});
+);
 
+// GET USER USERNAME BY ID
 app.get("/users/:user_id", async (req, res) => {
   const user_id = req.params.user_id;
 
@@ -445,7 +501,9 @@ app.get("/users/:user_id", async (req, res) => {
     await client.end();
   }
 });
-app.post("/posts", postCommentLimiter, async (req, res) => {
+
+// POST A POST
+app.post("/posts", verifyToken, postCommentLimiter, async (req, res) => {
   const { creator_id, title, content } = req.body;
 
   if (!creator_id || !title || !content) {
