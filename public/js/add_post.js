@@ -16,10 +16,19 @@ document
       const currentUser = JSON.parse(currentUserData);
       const creatorId = currentUser.id;
 
+      // Retrieve the token from localStorage
+      const token = currentUser.token;
+
+      // Ensure the token exists
+      if (!token) {
+        throw new Error("Authorization token not found");
+      }
+
       const response = await fetch("https://technigram.onrender.com/posts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Include the token in the request
         },
         body: JSON.stringify({
           creator_id: creatorId,
