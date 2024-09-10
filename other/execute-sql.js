@@ -78,7 +78,7 @@ const selectQuery = "SELECT * FROM users";
 const selectWhereQuery = "SELECT * FROM posts WHERE post_id = 1";
 const updateQuery =
   "UPDATE comments SET comment_creator_id = 1 WHERE comment_creator_id > 1";
-const deleteQuery = "DELETE FROM users WHERE id < 100";
+const deleteQuery = "DELETE FROM users WHERE id = 1";
 const alterQuery = `ALTER TABLE users
 ADD COLUMN last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Adds last_activity with default to current time
 ADD COLUMN timeout TIMESTAMP DEFAULT NULL;                     -- Adds timeout which can be set to NULL or a specific time

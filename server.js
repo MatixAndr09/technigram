@@ -206,6 +206,7 @@ app.get(
 
 const verifyToken = async (req, res, next) => {
   const token = req.session.token || (req.user && req.user.token); // Get token from session or user
+  console.log(token);
   if (!token) {
     return res.status(401).json({ error: "No token provided" });
   }
