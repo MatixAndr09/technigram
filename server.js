@@ -7,7 +7,6 @@ const session = require("express-session");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const xss = require("xss");
-const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
 const app = express();
@@ -46,7 +45,7 @@ const postCommentLimiter = rateLimit({
     if (req.rateLimit && req.rateLimit.current > 50) {
       return 10; // Reduce max requests to 10 if user exceeds 50 in current window
     }
-    return 20; // Default max requests per 15 minutes
+    return 15; // Default max requests per 15 minutes
   },
   message:
     "Too many requests for posting or commenting. Please try again after 15 minutes.",
@@ -67,11 +66,6 @@ const generateToken = (user) => {
   const tokenPayload = { id: user.id, username: user.username };
   const token = jwt.sign(tokenPayload, "your-secret-key", { expiresIn: "1h" });
   return token;
-};
-
-// Hash token using SHA-256
-const hashToken = (token) => {
-  return crypto.createHash("sha256").update(token).digest("hex");
 };
 
 // Passport.js Google OAuth configuration
@@ -123,14 +117,11 @@ passport.use(
           user = insertResult.rows[0];
         }
 
-        // Generate and hash the token
         const token = generateToken(user);
-        const hashedToken = hashToken(token);
 
-        // Store the hashed token in the database
         const updateTokenQuery = {
           text: "UPDATE users SET token = $1 WHERE id = $2",
-          values: [hashedToken, user.id],
+          values: [token, user.id],
         };
         await client.query(updateTokenQuery);
 
@@ -212,7 +203,6 @@ const verifyToken = async (req, res, next) => {
   }
 
   // Continue with token verification as before
-  const hashedToken = hashToken(token);
 
   const client = new Client({
     connectionString: connectionString,
@@ -227,7 +217,7 @@ const verifyToken = async (req, res, next) => {
     };
 
     const result = await client.query(query);
-    if (result.rows.length === 0 || result.rows[0].token !== hashedToken) {
+    if (result.rows.length === 0 || result.rows[0].token !== token) {
       return res.status(403).json({ error: "Invalid token" });
     }
 
