@@ -193,7 +193,8 @@ app.get(
           <script>
             localStorage.setItem("currentUser", JSON.stringify({
               id: "${req.user.id}",
-              username: "${req.user.username}"
+              username: "${req.user.username}",
+              token: "${req.user.token}"
             }));
             window.location.replace("/index.html");
           </script>
