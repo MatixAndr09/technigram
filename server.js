@@ -147,10 +147,12 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
+  console.log("Serializing user:", user); // Debugging log
   done(null, { id: user.id, username: user.username, token: user.token });
 });
 
 passport.deserializeUser(async (user, done) => {
+  console.log("Deserializing user:", user); // Debugging log
   const client = new Client({
     connectionString: connectionString,
     ssl: sslConfig,
@@ -184,16 +186,15 @@ app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
+    req.session.token = req.user.token; // Set the token in session
     res.send(`
       <html>
         <body>
           <script>
-            // Store the user's ID and username in localStorage
             localStorage.setItem("currentUser", JSON.stringify({
               id: "${req.user.id}",
               username: "${req.user.username}"
             }));
-            // Redirect to the new URL
             window.location.replace("/index.html");
           </script>
         </body>
@@ -203,12 +204,12 @@ app.get(
 );
 
 const verifyToken = async (req, res, next) => {
-  const token = req.session.token || null;
+  const token = req.session.token || (req.user && req.user.token); // Get token from session or user
   if (!token) {
     return res.status(401).json({ error: "No token provided" });
   }
 
-  // Hash the token and compare with the stored hash
+  // Continue with token verification as before
   const hashedToken = hashToken(token);
 
   const client = new Client({
