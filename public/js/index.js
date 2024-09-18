@@ -169,15 +169,15 @@ function baseToPath(base64String) {
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const currentUserData = localStorage.getItem("currentUser");
-    console.log(currentUser);
 
     if (!currentUserData) {
       throw new Error("User not logged in");
     }
 
     const currentUser = JSON.parse(currentUserData);
-    currentUserId = currentUser.id;
-    currentUserName = currentUser.username;
+
+    const currentUserId = currentUser.id;
+    const currentUserName = currentUser.username;
 
     const usernameDisplay = document.querySelector("#username-display");
     if (usernameDisplay) {

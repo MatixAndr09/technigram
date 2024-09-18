@@ -27,28 +27,28 @@
     </main>
 
     <script>
-      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-      const localToken = currentUser.token;
-      const userId = currentUser.id;
+      document.addEventListener("DOMContentLoaded", async () => {
+        try {
+          const currentUserData = localStorage.getItem("currentUser");
 
-      fetch("http://localhost:3005/check-token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ localToken, userId }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            console.log("Token matches");
-          } else {
-            console.log("Token does not match");
+          if (!currentUserData) {
+            throw new Error("User not logged in");
           }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
+
+          const currentUser = JSON.parse(currentUserData);
+
+          const currentUserId = currentUser.id;
+          const currentUserName = currentUser.username;
+
+          const usernameDisplay = document.querySelector("#username-display");
+          if (usernameDisplay) {
+            usernameDisplay.textContent = currentUserName;
+          }
+        } catch (error) {
+          console.error("Error initializing home page:", error);
+          window.location.replace("./home.html");
+        }
+      });
     </script>
   </body>
 </html>
