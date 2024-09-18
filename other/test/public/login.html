@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Technigram Login</title>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1 class="headline">Technigram</h1>
+      </div>
+    </header>
+    <main>
+      <h2>Yes, you can only Login with</h2>
+      <div id="googleLogin">
+        <a>
+          <img
+            src="https://static-00.iconduck.com/assets.00/google-icon-2048x2048-czn3g8x8.png"
+            alt="Google Login"
+          />
+          Google
+        </a>
+      </div>
+      <p>I appreciate if you login with your school email</p>
+      <h6>for safety reasons such as filip</h6>
+    </main>
+
+    <script>
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      const localToken = currentUser.token;
+      const userId = currentUser.id;
+
+      fetch("http://localhost:3005/check-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ localToken, userId }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            console.log("Token matches");
+          } else {
+            console.log("Token does not match");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    </script>
+  </body>
+</html>

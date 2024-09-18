@@ -195,38 +195,26 @@ app.get(
   }
 );
 
-const verifyToken = async (req, res, next) => {
-  const token = req.session.token || (req.user && req.user.token); // Get token from session or user
-  console.log(token);
-  if (!token) {
-    return res.status(401).json({ error: "No token provided" });
-  }
-
-  // Continue with token verification as before
-
-  const client = new Client({
-    connectionString: connectionString,
-    ssl: sslConfig,
-  });
+const checkToken = async (localToken, userId) => {
   try {
-    await client.connect();
+    // Query to get token from database where id matches the userId
+    const queryResult = await pool.query(
+      "SELECT token FROM users WHERE id = $1",
+      [userId]
+    );
 
-    const query = {
-      text: "SELECT token FROM users WHERE id = $1",
-      values: [req.user.id],
-    };
+    // Extract the token from the query result
+    const dbToken = queryResult.rows[0]?.token;
 
-    const result = await client.query(query);
-    if (result.rows.length === 0 || result.rows[0].token !== token) {
-      return res.status(403).json({ error: "Invalid token" });
+    // Check if the tokens match
+    if (dbToken === localToken) {
+      return { success: true, message: "Token matches" };
+    } else {
+      return { success: false, message: "Token does not match" };
     }
-
-    next(); // Token is valid, proceed
-  } catch (err) {
-    console.error("Token verification error:", err);
-    return res.status(500).json({ error: "Failed to verify token" });
-  } finally {
-    await client.end();
+  } catch (error) {
+    console.error("Error querying database:", error);
+    return { success: false, message: "Internal server error" };
   }
 };
 
@@ -394,71 +382,85 @@ app.get("/posts/:post_id", async (req, res) => {
   }
 });
 
-app.post(
-  "/posts/:post_id/comments",
-  verifyToken,
-  postCommentLimiter,
-  async (req, res) => {
-    const post_id = req.params.post_id;
-    const { comment_content, comment_creator_id } = req.body;
+app.post("/posts/:post_id/comments", postCommentLimiter, async (req, res) => {
+  const post_id = req.params.post_id;
+  const { comment_content, comment_creator_id } = req.body;
 
-    if (!comment_content || !comment_creator_id) {
-      return res
-        .status(400)
-        .json({ error: "Comment content and creator ID are required" });
-    }
+  // Extract the token from the Authorization header
+  const authHeader = req.headers.authorization;
+  const localToken = authHeader && authHeader.split(" ")[1]; // Extract the token (Bearer scheme)
+  const { userId } = req.body; // You should also send the userId from the frontend
 
-    if (comment_content.length > 500) {
-      return res
-        .status(400)
-        .json({ error: "Lenght of the text cannot exceed 500 letters" });
-    }
+  if (!localToken) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Token not provided" });
+  }
 
-    const sanitizedCommentContent = xss(comment_content);
+  // Call the checkToken function to validate the token
+  const result = await checkToken(localToken, userId);
+  if (!result.success) {
+    return res
+      .status(result.message === "Token does not match" ? 401 : 500)
+      .json(result);
+  }
 
-    const client = new Client({
-      connectionString: connectionString,
-      ssl: sslConfig,
-    });
+  if (!comment_content || !comment_creator_id) {
+    return res
+      .status(400)
+      .json({ error: "Comment content and creator ID are required" });
+  }
 
-    try {
-      await client.connect();
+  if (comment_content.length > 500) {
+    return res
+      .status(400)
+      .json({ error: "Lenght of the text cannot exceed 500 letters" });
+  }
 
-      const insertCommentQuery = {
-        text: `
+  const sanitizedCommentContent = xss(comment_content);
+
+  const client = new Client({
+    connectionString: connectionString,
+    ssl: sslConfig,
+  });
+
+  try {
+    await client.connect();
+
+    const insertCommentQuery = {
+      text: `
         INSERT INTO comments (post_id, comment_creator_id, comment_content)
         VALUES ($1, $2, $3)
         RETURNING comment_id, comment_creator_id, comment_content
       `,
-        values: [post_id, comment_creator_id, sanitizedCommentContent],
-      };
+      values: [post_id, comment_creator_id, sanitizedCommentContent],
+    };
 
-      const insertResult = await client.query(insertCommentQuery);
-      const newComment = insertResult.rows[0];
+    const insertResult = await client.query(insertCommentQuery);
+    const newComment = insertResult.rows[0];
 
-      const selectCommentUserQuery = {
-        text: `
+    const selectCommentUserQuery = {
+      text: `
         SELECT username FROM users
         WHERE id = $1
       `,
-        values: [newComment.comment_creator_id],
-      };
+      values: [newComment.comment_creator_id],
+    };
 
-      const commentUserResult = await client.query(selectCommentUserQuery);
-      const commentUsername = commentUserResult.rows[0].username;
+    const commentUserResult = await client.query(selectCommentUserQuery);
+    const commentUsername = commentUserResult.rows[0].username;
 
-      res.json({
-        ...newComment,
-        username: commentUsername,
-      });
-    } catch (err) {
-      console.error("Error adding comment:", err);
-      res.status(500).json({ error: "Failed to add comment" });
-    } finally {
-      await client.end();
-    }
+    res.json({
+      ...newComment,
+      username: commentUsername,
+    });
+  } catch (err) {
+    console.error("Error adding comment:", err);
+    res.status(500).json({ error: "Failed to add comment" });
+  } finally {
+    await client.end();
   }
-);
+});
 
 // GET USER USERNAME BY ID
 app.get("/users/:user_id", async (req, res) => {
@@ -496,8 +498,25 @@ app.get("/users/:user_id", async (req, res) => {
 });
 
 // POST A POST
-app.post("/posts", verifyToken, postCommentLimiter, async (req, res) => {
-  const { creator_id, title, content } = req.body;
+app.post("/posts", postCommentLimiter, async (req, res) => {
+  // Extract the token from the Authorization header
+  const authHeader = req.headers.authorization;
+  const localToken = authHeader && authHeader.split(" ")[1]; // Extract the token (Bearer scheme)
+  const { userId, creator_id, title, content } = req.body;
+
+  if (!localToken) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Token not provided" });
+  }
+
+  // Call the checkToken function to validate the token
+  const result = await checkToken(localToken, userId);
+  if (!result.success) {
+    return res
+      .status(result.message === "Token does not match" ? 401 : 500)
+      .json(result);
+  }
 
   if (!creator_id || !title || !content) {
     return res

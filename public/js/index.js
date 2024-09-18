@@ -169,6 +169,7 @@ function baseToPath(base64String) {
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const currentUserData = localStorage.getItem("currentUser");
+    console.log(currentUser);
 
     if (!currentUserData) {
       throw new Error("User not logged in");
