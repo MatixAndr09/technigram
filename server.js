@@ -198,7 +198,7 @@ app.get(
 const checkToken = async (localToken, userId) => {
   try {
     // Query to get token from database where id matches the userId
-    const queryResult = await pool.query(
+    const queryResult = await Client.query(
       "SELECT token FROM users WHERE id = $1",
       [userId]
     );

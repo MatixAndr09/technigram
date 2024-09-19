@@ -37,7 +37,7 @@ const checkToken = async (localToken, userId) => {
     const dbToken = queryResult.rows[0]?.token;
 
     // Check if the tokens match
-    if (dbToken === localToken) {
+    if (dbToken == localToken) {
       return { success: true, message: "Token matches" };
     } else {
       return { success: false, message: "Token does not match" };

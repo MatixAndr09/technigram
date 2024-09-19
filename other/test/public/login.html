@@ -27,6 +27,16 @@
     </main>
 
     <script>
+      // localStorage.setItem(
+      //   "currentUser",
+      //   JSON.stringify({
+      //     id: "2",
+      //     username: "Maciej Kaźmierczak",
+      //     token:
+      //       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJNYWNpZWogS2HFum1pZXJjemFrIiwiaWF0IjoxNzI2NjY2Njc1LCJleHAiOjE3MjY2NzAyNzV9.Xjne2iC6DA3EkxenG-UAyaJMJL8yZqIkcTjD7c8l4jc",
+      //   })
+      // );
+
       document.addEventListener("DOMContentLoaded", async () => {
         try {
           const currentUserData = localStorage.getItem("currentUser");
@@ -37,6 +47,25 @@
 
           const currentUser = JSON.parse(currentUserData);
 
+          // Use currentUser here
+          fetch("http://localhost:3005/check-token", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              localToken: currentUser.token,
+              userId: currentUser.id,
+            }),
+          })
+            .then((response) => response.json())
+            .then((result) => {
+              console.log(result); // Handle the response here
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+
           const currentUserId = currentUser.id;
           const currentUserName = currentUser.username;
 
@@ -46,7 +75,7 @@
           }
         } catch (error) {
           console.error("Error initializing home page:", error);
-          window.location.replace("./home.html");
+          // window.location.replace("./home.html");
         }
       });
     </script>
