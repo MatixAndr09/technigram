@@ -195,18 +195,19 @@ app.get(
   }
 );
 
-const checkToken = async (localToken, userId) => {
+const checkToken = async (localToken, userId, connectionString, sslConfig) => {
+  const client = new Client({
+    connectionString: connectionString,
+    ssl: sslConfig,
+  });
+
   try {
-    // Query to get token from database where id matches the userId
-    const queryResult = await Client.query(
+    await client.connect();
+    const queryResult = await client.query(
       "SELECT token FROM users WHERE id = $1",
       [userId]
     );
-
-    // Extract the token from the query result
     const dbToken = queryResult.rows[0]?.token;
-
-    // Check if the tokens match
     if (dbToken === localToken) {
       return { success: true, message: "Token matches" };
     } else {
@@ -215,6 +216,8 @@ const checkToken = async (localToken, userId) => {
   } catch (error) {
     console.error("Error querying database:", error);
     return { success: false, message: "Internal server error" };
+  } finally {
+    await client.end();
   }
 };
 
@@ -387,9 +390,10 @@ app.post("/posts/:post_id/comments", postCommentLimiter, async (req, res) => {
   const { comment_content, comment_creator_id } = req.body;
 
   // Extract the token from the Authorization header
+  // Extract the token from the Authorization header
   const authHeader = req.headers.authorization;
-  const localToken = authHeader && authHeader.split(" ")[1]; // Extract the token (Bearer scheme)
-  const { userId } = req.body; // You should also send the userId from the frontend
+  const localToken = authHeader && authHeader.split(" ")[1];
+  const userId = req.params.user_id;
 
   if (!localToken) {
     return res

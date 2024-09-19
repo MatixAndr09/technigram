@@ -78,6 +78,14 @@ async function handleAddComment(postId) {
     return;
   }
 
+  const currentUser = JSON.parse(localStorage.getItem("currentUser")); // Parse the JSON object
+  const token = currentUser?.token;
+
+  if (!token) {
+    alert("You are not authorized. Please log in first.");
+    return;
+  }
+
   try {
     const response = await fetch(
       `https://technigram.onrender.com/posts/${postId}/comments`,
@@ -85,16 +93,19 @@ async function handleAddComment(postId) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Attach the token in the Authorization header
         },
         body: JSON.stringify({
           comment_content: commentContent,
-          comment_creator_id: currentUserId,
+          comment_creator_id: currentUser.id, // Use the ID from currentUser object
         }),
       }
     );
 
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      const errorData = await response.json();
+      alert(`Error: ${errorData.message}`);
+      return;
     }
 
     const newComment = await response.json();
