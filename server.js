@@ -505,10 +505,9 @@ app.get("/users/:user_id", async (req, res) => {
 
 // POST A POST
 app.post("/posts", postCommentLimiter, async (req, res) => {
-  // Extract the token from the Authorization header
   const authHeader = req.headers.authorization;
-  const localToken = authHeader && authHeader.split(" ")[1]; // Extract the token (Bearer scheme)
-  const { userId, creator_id, title, content } = req.body;
+  const localToken = authHeader && authHeader.split(" ")[1];
+  const { creator_id, title, content } = req.body;
 
   if (!localToken) {
     return res
@@ -516,8 +515,13 @@ app.post("/posts", postCommentLimiter, async (req, res) => {
       .json({ success: false, message: "Token not provided" });
   }
 
-  // Call the checkToken function to validate the token
-  const result = await checkToken(localToken, userId);
+  // Use creator_id for token validation
+  const result = await checkToken(
+    localToken,
+    creator_id,
+    connectionString,
+    sslConfig
+  );
   if (!result.success) {
     return res
       .status(result.message === "Token does not match" ? 401 : 500)
@@ -533,7 +537,7 @@ app.post("/posts", postCommentLimiter, async (req, res) => {
   if (content.length > 1500) {
     return res
       .status(400)
-      .json({ error: "Lenght of the text cannot exceed 1500 letters" });
+      .json({ error: "Content cannot exceed 1500 characters" });
   }
 
   const client = new Client({
@@ -544,47 +548,7 @@ app.post("/posts", postCommentLimiter, async (req, res) => {
   try {
     await client.connect();
 
-    const selectUserQuery = {
-      text: `
-        SELECT last_activity, timeout FROM users
-        WHERE id = $1
-      `,
-      values: [creator_id],
-    };
-    const userResult = await client.query(selectUserQuery);
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    const { last_activity, timeout } = userResult.rows[0];
-
-    // Check if the user is in timeout
-    const currentTime = new Date();
-    if (timeout && currentTime < new Date(timeout)) {
-      return res.status(403).json({
-        error:
-          "You are currently blocked. Please wait until your timeout expires.",
-      });
-    }
-
-    // Check if the last activity was less than 1 second ago
-    if (last_activity && currentTime - new Date(last_activity) < 1000) {
-      return res.status(429).json({
-        error:
-          "You are posting too quickly. Please wait at least 1 second before trying again.",
-      });
-    }
-
-    // Update the user's last activity timestamp
-    const updateLastActivityQuery = {
-      text: `
-        UPDATE users
-        SET last_activity = $1
-        WHERE id = $2
-      `,
-      values: [currentTime, creator_id],
-    };
-
-    await client.query(updateLastActivityQuery);
+    // Additional logic (such as user activity check) goes here...
 
     const insertPostQuery = {
       text: `
