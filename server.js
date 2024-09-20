@@ -389,11 +389,8 @@ app.post("/posts/:post_id/comments", postCommentLimiter, async (req, res) => {
   const post_id = req.params.post_id;
   const { comment_content, comment_creator_id } = req.body;
 
-  // Extract the token from the Authorization header
-  // Extract the token from the Authorization header
   const authHeader = req.headers.authorization;
   const localToken = authHeader && authHeader.split(" ")[1];
-  const userId = req.params.user_id;
 
   if (!localToken) {
     return res
@@ -401,8 +398,13 @@ app.post("/posts/:post_id/comments", postCommentLimiter, async (req, res) => {
       .json({ success: false, message: "Token not provided" });
   }
 
-  // Call the checkToken function to validate the token
-  const result = await checkToken(localToken, userId);
+  // Validate the token using comment_creator_id instead of user_id
+  const result = await checkToken(
+    localToken,
+    comment_creator_id,
+    connectionString,
+    sslConfig
+  );
   if (!result.success) {
     return res
       .status(result.message === "Token does not match" ? 401 : 500)
@@ -418,7 +420,7 @@ app.post("/posts/:post_id/comments", postCommentLimiter, async (req, res) => {
   if (comment_content.length > 500) {
     return res
       .status(400)
-      .json({ error: "Lenght of the text cannot exceed 500 letters" });
+      .json({ error: "Length of the text cannot exceed 500 characters" });
   }
 
   const sanitizedCommentContent = xss(comment_content);
