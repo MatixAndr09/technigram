@@ -2,6 +2,8 @@
   --header-background: #1f1f1f;
   --body-background: #121212;
   --children-background: #1e1e1e;
+  --background-color: #1e1e1e; /* Define the missing background color variable */
+  --avatar-border-color: rgb(0, 0, 0);
 }
 
 body {
@@ -17,6 +19,7 @@ header {
   justify-content: center;
   align-items: center;
 }
+
 header > div {
   display: flex;
   flex-direction: row;
@@ -31,6 +34,7 @@ header > div {
   height: 77px;
   border-radius: 7%;
 }
+
 .menu-icon {
   font-size: 245%;
   padding: 7px;
@@ -43,6 +47,7 @@ header > div {
   flex-direction: row;
   flex: 1;
 }
+
 main {
   padding: 49px;
   display: flex;
@@ -53,7 +58,6 @@ main {
 }
 
 /* POSTS */
-
 .post {
   width: 700px;
   background: var(--children-background);
@@ -70,11 +74,13 @@ main {
   align-self: flex-start;
   gap: 12px;
 }
+
 .post > div {
   margin: 10px;
   display: flex;
   flex-direction: column;
 }
+
 .post > div.profile {
   margin: 10px;
   display: flex;
@@ -118,56 +124,58 @@ main {
   display: flex;
   flex-direction: column;
 }
+
 .post > footer > .comments > .comment-creator {
   display: flex;
   flex-direction: row;
   gap: 7px;
   padding: 3.5px;
 }
+
 .post input {
   padding: 5px 15px;
   display: flex;
   flex: 1;
   font-size: 14px;
-  background-color: var(--background-color);
+  background-color: var(--background-color); /* This will work now */
   border: 1px solid white;
   border-radius: 100px;
   color: #fff;
 }
+
 .post button {
   color: black;
   border-radius: 15px;
   border: none;
 }
+
 .post > footer > .comments > .comment-creator > span {
   font-size: 25px;
-  background-color: var(--background-color);
+  background-color: var(--background-color); /* This will work now */
   border: none;
   border-radius: 100px;
   color: #fff;
 }
+
 span.author {
   font-weight: 600;
   text-decoration: underline;
 }
 
 /* SIDEBAR */
-
 .sidebar {
-  /* Zrób by max widt */
   flex: 0 1 350px;
-  /* max-width: 100px; */
   background-color: var(--header-background);
   position: sticky;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
+  top: 0; /* Stick to the top of the viewport */
+  height: 100vh; /* Make it as tall as the viewport */
   padding: 21px;
+  display: flex;
+  flex-direction: column;
   gap: 14px;
 }
 
 .sidebar > a {
-  /* Troche jaśniejszy kwadrat z paddingiem  */
   width: 161px;
   font-size: 1.7em;
   background-color: #333;
@@ -175,21 +183,18 @@ span.author {
   border-left: 7px solid rgb(23, 0, 128);
   transition: 0.1s linear;
 }
+
 .sidebar > a:hover {
   border-left: 14px solid rgb(23, 0, 128);
 }
 
 /* SHARED */
-
-:root {
-  --avatar-border-color: rgb(0, 0, 0);
-}
-
 img.avatar {
   box-sizing: content-box;
   border-radius: 50%;
   border: 2px solid var(--avatar-border-color);
 }
+
 img.avatar.medium {
   width: 44px;
   height: 44px;
@@ -213,9 +218,10 @@ div.line {
   font-size: 2rem;
   padding: 140px;
   gap: 21px;
-  > a > button {
-    scale: 2;
-    color: black;
-    border-radius: 7px;
-  }
+}
+
+#notLoggedPopup a button {
+  scale: 2;
+  color: black;
+  border-radius: 7px;
 }

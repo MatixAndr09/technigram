@@ -30,8 +30,15 @@ document
         }),
       });
 
+      // Log the response for debugging
+      console.log("Server response:", response);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorData = await response.json();
+        console.log("Error data:", errorData); // Log detailed error response
+        throw new Error(
+          `HTTP error! Status: ${response.status} - ${errorData.message}`
+        );
       }
 
       const newPost = await response.json();
@@ -39,7 +46,7 @@ document
 
       window.location.replace("https://technigram.onrender.com/index.html");
     } catch (error) {
-      console.error("Error adding post:", error);
-      errorDiv.textContent = error.message;
+      console.error("Error adding post:", error); // More detailed logging
+      errorDiv.textContent = `Failed to add post: ${error.message}`;
     }
   });

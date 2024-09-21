@@ -42,7 +42,9 @@ async function fetchPost(postId) {
 
     postDiv.innerHTML = `
       <div class="profile">
-        <img src="${imgPath}" alt="" class="avatar medium" />
+        <img src="${escapeHTML(
+          postDetails.creatorProfilePicture
+        )}" alt="" class="avatar medium" />
         <span class="author">${escapeHTML(postDetails.creatorUsername)}</span>
       </div>
       <div class="post-content">

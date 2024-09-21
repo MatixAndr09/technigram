@@ -69,6 +69,7 @@ const generateToken = (user) => {
 };
 
 // Passport.js Google OAuth configuration
+
 passport.use(
   new GoogleStrategy(
     {
@@ -94,16 +95,30 @@ passport.use(
         await client.connect();
 
         const selectUserQuery = {
-          text: "SELECT id, username FROM users WHERE email = $1",
+          text: "SELECT id, username, token FROM users WHERE email = $1",
           values: [email],
         };
 
         const result = await client.query(selectUserQuery);
 
         let user;
+        let token;
         if (result.rows.length > 0) {
           user = result.rows[0];
+
+          // If token exists, use the existing token, otherwise generate a new one
+          token = user.token ? user.token : generateToken(user);
+
+          // If no token existed, update the user record with the newly generated token
+          if (!user.token) {
+            const updateTokenQuery = {
+              text: "UPDATE users SET token = $1 WHERE id = $2",
+              values: [token, user.id],
+            };
+            await client.query(updateTokenQuery);
+          }
         } else {
+          // First-time registration, insert the new user and generate a token
           const insertUserQuery = {
             text: `
               INSERT INTO users (username, email, profile_picture)
@@ -115,17 +130,16 @@ passport.use(
 
           const insertResult = await client.query(insertUserQuery);
           user = insertResult.rows[0];
+          token = generateToken(user);
+
+          const updateTokenQuery = {
+            text: "UPDATE users SET token = $1 WHERE id = $2",
+            values: [token, user.id],
+          };
+          await client.query(updateTokenQuery);
         }
 
-        const token = generateToken(user);
-
-        const updateTokenQuery = {
-          text: "UPDATE users SET token = $1 WHERE id = $2",
-          values: [token, user.id],
-        };
-        await client.query(updateTokenQuery);
-
-        // Store the token in session
+        // Store the token in session and return user with token
         return done(null, { ...user, token });
       } catch (err) {
         console.error("Error handling Google login:", err);
@@ -203,6 +217,7 @@ const checkToken = async (localToken, userId, connectionString, sslConfig) => {
 
   try {
     await client.connect();
+
     const queryResult = await client.query(
       "SELECT token FROM users WHERE id = $1",
       [userId]
@@ -522,6 +537,7 @@ app.post("/posts", postCommentLimiter, async (req, res) => {
     connectionString,
     sslConfig
   );
+
   if (!result.success) {
     return res
       .status(result.message === "Token does not match" ? 401 : 500)

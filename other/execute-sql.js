@@ -12,7 +12,7 @@ const client = new Client({
   ssl: sslConfig,
 });
 
-const method = "select"; //  "create"/"insert"/"select"/"select where"/"drop"/"update"/"delete"
+const method = "update"; //  "create"/"insert"/"select"/"select where"/"drop"/"update"/"delete"
 
 const dropTablesQuery = `
 DROP TABLE IF EXISTS users CASCADE;
@@ -81,12 +81,10 @@ const selectQuery = "SELECT * FROM users";
 // "SELECT * FROM comments WHERE comment_creator_id NOT IN (SELECT id FROM users)";
 const selectWhereQuery = "SELECT * FROM posts WHERE post_id = 1";
 const updateQuery =
-  "UPDATE comments SET comment_creator_id = 1 WHERE comment_creator_id > 1";
-const deleteQuery = "DELETE FROM users WHERE id = 4";
-const alterQuery = `ALTER TABLE users
-ADD COLUMN last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Adds last_activity with default to current time
-ADD COLUMN timeout TIMESTAMP DEFAULT NULL;                     -- Adds timeout which can be set to NULL or a specific time
-`;
+  "UPDATE users SET token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJNYWNpZWogS2HFum1pZXJjemFrIiwiaWF0IjoxNzI1OTc2NTcwLCJleHAiOjE3MjU5ODAxNzB9.2Cczzp9HuYt-uxZHPA-T5ZctY3GAFHLAaZ0TNVtA7zo' WHERE id = 1";
+const deleteQuery = "DELETE FROM posts WHERE creator_id = 3";
+const alterQuery = `ALTER TABLE users add column "profile_changed" BOOLEAN SET default FALSE;`;
+// ADD COLUMN timeout TIMESTAMP DEFAULT NULL;                     -- Adds timeout which can be set to NULL or a specific time
 
 async function executeQuery(method) {
   try {
