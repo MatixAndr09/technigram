@@ -12,7 +12,7 @@ const client = new Client({
   ssl: sslConfig,
 });
 
-const method = "update"; //  "create"/"insert"/"select"/"select where"/"drop"/"update"/"delete"
+const method = "select"; //  "create"/"insert"/"select"/"select where"/"drop"/"update"/"delete"
 
 const dropTablesQuery = `
 DROP TABLE IF EXISTS users CASCADE;
@@ -61,9 +61,9 @@ const insertPostQuery = `
 
 // INSERT INTO posts (post_id, creator_id, title, content, likes) VALUES (2, 1, 'Technigram 0.3.2v DevLog', 'Well, uh, działają pfp w dużym skrócie. Pozostało jeszcze tylko, post making, post matching, login, register, actually being logged in, and much more things that im to lazy to talk about', 7);
 
-const selectQuery = "SELECT * FROM users";
+// const selectQuery = "SELECT * FROM users";
 // const selectQuery = "SELECT token FROM users WHERE id = 1;";
-// const selectQuery = "SELECT * FROM posts";
+const selectQuery = "SELECT * FROM posts";
 // const selectQuery = "SELECT * FROM comments";
 // const selectQuery = "SELECT token FROM users WHERE id = 1";
 // const selectQuery = "SELECT last_value FROM public.posts_post_id_seq;";
@@ -80,9 +80,8 @@ const selectQuery = "SELECT * FROM users";
 
 // "SELECT * FROM comments WHERE comment_creator_id NOT IN (SELECT id FROM users)";
 const selectWhereQuery = "SELECT * FROM posts WHERE post_id = 1";
-const updateQuery =
-  "UPDATE users SET token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJNYWNpZWogS2HFum1pZXJjemFrIiwiaWF0IjoxNzI1OTc2NTcwLCJleHAiOjE3MjU5ODAxNzB9.2Cczzp9HuYt-uxZHPA-T5ZctY3GAFHLAaZ0TNVtA7zo' WHERE id = 1";
-const deleteQuery = "DELETE FROM posts WHERE creator_id = 3";
+const updateQuery = "UPDATE posts SET post_id = 7 WHERE post_id = 8";
+const deleteQuery = "DELETE FROM posts WHERE creator_id != 1";
 const alterQuery = `ALTER TABLE users add column "profile_changed" BOOLEAN SET default FALSE;`;
 // ADD COLUMN timeout TIMESTAMP DEFAULT NULL;                     -- Adds timeout which can be set to NULL or a specific time
 

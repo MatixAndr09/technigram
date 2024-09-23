@@ -225,3 +225,56 @@ div.line {
   color: black;
   border-radius: 7px;
 }
+
+/* Default styles (for larger screens) are already defined */
+
+/* Mobile friendly RWD */
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+  }
+
+  .menu-icon {
+    font-size: 200%;
+    margin: 0;
+  }
+
+  .logo {
+    height: 55px;
+  }
+
+  .middle {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  main {
+    padding: 20px;
+    gap: 25px;
+  }
+
+  .post {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .sidebar {
+    display: none; /* Hide sidebar on smaller screens */
+  }
+
+  footer {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* Tablet responsive styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .post {
+    width: 85%;
+  }
+
+  .sidebar {
+    flex: 0 1 250px; /* Adjust sidebar size for tablets */
+  }
+}

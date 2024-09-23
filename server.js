@@ -587,7 +587,7 @@ app.post("/posts", postCommentLimiter, async (req, res) => {
   }
 });
 
-app.post("/reset-seq", async (req, res) => {
+app.get("/reset-seq", async (req, res) => {
   const client = new Client({
     connectionString: connectionString,
     ssl: sslConfig,
