@@ -8,6 +8,7 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const xss = require("xss");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const app = express();
 const port = 3000;
@@ -18,7 +19,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use(
   session({
-    secret: "yes_for_now_secret_key_shall_be_this",
+    secret: process.env.APP_SECRET,
     resave: false,
     saveUninitialized: true,
   })
@@ -31,8 +32,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // PostgreSQL configuration
-const connectionString =
-  "postgresql://technigramdatabase_hiv4_user:C9DuZrKJx5KcOmxmoawWXWhK7ib1PX1x@dpg-cra4rkij1k6c73brco90-a.frankfurt-postgres.render.com/technigramdatabase_hiv4";
+const connectionString = process.env.DATABASE_CONNECTION_STRING;
 
 const sslConfig = {
   rejectUnauthorized: false,
@@ -45,7 +45,7 @@ const postCommentLimiter = rateLimit({
     if (req.rateLimit && req.rateLimit.current > 50) {
       return 10; // Reduce max requests to 10 if user exceeds 50 in current window
     }
-    return 15; // Default max requests per 15 minutes
+    return 15; // Default max requests per 15 minute
   },
   message:
     "Too many requests for posting or commenting. Please try again after 15 minutes.",
@@ -64,7 +64,9 @@ const postCommentLimiter = rateLimit({
 
 const generateToken = (user) => {
   const tokenPayload = { id: user.id, username: user.username };
-  const token = jwt.sign(tokenPayload, "your-secret-key", { expiresIn: "1h" });
+  const token = jwt.sign(tokenPayload, process.env.APP_SECRET, {
+    expiresIn: "1h",
+  });
   return token;
 };
 
@@ -73,9 +75,8 @@ const generateToken = (user) => {
 passport.use(
   new GoogleStrategy(
     {
-      clientID:
-        "1018719524838-7p1djmo9b4nkm8osvt0jbp37fup7ba9l.apps.googleusercontent.com",
-      clientSecret: "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",
+      clientID: GOOGLESTRATEGY_CLIENTID,
+      clientSecret: GOOGLESTRATEGY_CLIENTSECRET,
       callbackURL: "https://technigram.onrender.com/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
