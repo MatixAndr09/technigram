@@ -16,7 +16,7 @@ function escapeHTML(unsafe) {
 async function fetchPost(postId) {
   try {
     const response = await fetch(
-      `https://technigram.onrender.com/posts/${postId}`
+      `${process.env.SERVER_ADRESS}/posts/${postId}`
     );
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -90,7 +90,7 @@ async function handleAddComment(postId) {
 
   try {
     const response = await fetch(
-      `https://technigram.onrender.com/posts/${postId}/comments`,
+      `${process.env.SERVER_ADRESS}/posts/${postId}/comments`,
       {
         method: "POST",
         headers: {
@@ -132,7 +132,7 @@ async function handleAddComment(postId) {
 
 async function fetchNumberOfPosts() {
   try {
-    const response = await fetch("https://technigram.onrender.com/posts/count");
+    const response = await fetch(`${process.env.SERVER_ADRESS}/posts/count`);
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -148,7 +148,7 @@ async function fetchNumberOfPosts() {
 async function addComment(postId, commentContent) {
   try {
     const response = await fetch(
-      `https://technigram.onrender.com/posts/${postId}/comments`,
+      `${process.env.SERVER_ADRESS}/posts/${postId}/comments`,
       {
         method: "POST",
         headers: {

@@ -75,8 +75,8 @@ const generateToken = (user) => {
 passport.use(
   new GoogleStrategy(
     {
-      clientID: GOOGLESTRATEGY_CLIENTID,
-      clientSecret: GOOGLESTRATEGY_CLIENTSECRET,
+      clientID: process.env.GOOGLESTRATEGY_CLIENTID,
+      clientSecret: process.env.GOOGLESTRATEGY_CLIENTSECRET,
       callbackURL: "https://technigram.onrender.com/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
@@ -628,5 +628,5 @@ app.get("/healthcheck", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running at https://technigram.onrender.com`);
+  console.log(`Server is running at`, process.env.SERVER_ADRESS);
 });
