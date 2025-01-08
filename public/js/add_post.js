@@ -17,7 +17,7 @@ document
       const currentUser = JSON.parse(currentUserData);
       const creatorId = currentUser.id;
       const token = currentUser.token;
-      const response = await fetch(server_adress, {
+      const response = await fetch(server_adress + "/posts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
