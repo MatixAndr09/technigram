@@ -3,7 +3,7 @@
 So basicly this is a technigram remake becouse the current one is bad
 
 > [!WARNING]
-> This site is in very Alfa stage and its not optimalized and have potential security vunerblities. DO NOT DEPLOY TO PRODUCTION
+> This site is in **very alfa** stage and its not optimalized and **have** potential security **vunerblities**. **DO NOT DEPLOY TO PRODUCTION**
 
 ### Contributing
 
