@@ -1,7 +1,7 @@
-require("dotenv").config();
-
 let currentUserId;
 let currentUserName;
+
+server_adress = "https://technigram.onrender.com";
 
 // let loggedInAsMessage = document.querySelector(`.headline`);
 // const loggedInAsMessage = document.querySelector("#currently-logged-user`);
@@ -18,9 +18,7 @@ function escapeHTML(unsafe) {
 
 async function fetchPost(postId) {
   try {
-    const response = await fetch(
-      `${process.env.SERVER_ADRESS}/posts/${postId}`
-    );
+    const response = await fetch(`${server_adress}/posts/${postId}`);
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -92,20 +90,17 @@ async function handleAddComment(postId) {
   }
 
   try {
-    const response = await fetch(
-      `${process.env.SERVER_ADRESS}/posts/${postId}/comments`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Attach the token in the Authorization header
-        },
-        body: JSON.stringify({
-          comment_content: commentContent,
-          comment_creator_id: currentUser.id, // Use the ID from currentUser object
-        }),
-      }
-    );
+    const response = await fetch(`${server_adress}/posts/${postId}/comments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Attach the token in the Authorization header
+      },
+      body: JSON.stringify({
+        comment_content: commentContent,
+        comment_creator_id: currentUser.id, // Use the ID from currentUser object
+      }),
+    });
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -135,7 +130,7 @@ async function handleAddComment(postId) {
 
 async function fetchNumberOfPosts() {
   try {
-    const response = await fetch(`${process.env.SERVER_ADRESS}/posts/count`);
+    const response = await fetch(`${server_adress}/posts/count`);
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -150,16 +145,13 @@ async function fetchNumberOfPosts() {
 
 async function addComment(postId, commentContent) {
   try {
-    const response = await fetch(
-      `${process.env.SERVER_ADRESS}/posts/${postId}/comments`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ comment_content: commentContent }),
-      }
-    );
+    const response = await fetch(`${server_adress}/posts/${postId}/comments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ comment_content: commentContent }),
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);

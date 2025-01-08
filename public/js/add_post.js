@@ -1,5 +1,4 @@
-require("dotenv").config();
-
+server_adress = "https://technigram.onrender.com";
 document
   .querySelector("#addPostForm")
   .addEventListener("submit", async (event) => {
@@ -18,7 +17,7 @@ document
       const currentUser = JSON.parse(currentUserData);
       const creatorId = currentUser.id;
       const token = currentUser.token;
-      const response = await fetch(process.env.SERVER_ADRESS, {
+      const response = await fetch(server_adress, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,4 @@
-require("dotenv").config();
-
+server_adress = "https://technigram.onrender.com";
 document.addEventListener("DOMContentLoaded", async () => {
   let currentUserId;
   let currentUserName;
@@ -28,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const profilePictureImg = document.querySelector("#profilePicture");
   try {
     const response = await fetch(
-      `${process.env.SERVER_ADRESS}/profilePicture/${currentUserId}`
+      `${server_adress}/profilePicture/${currentUserId}`
     );
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
