@@ -101,6 +101,7 @@ async function handleAddComment(postId) {
         comment_creator_id: currentUser.id, // Use the ID from currentUser object
       }),
     });
+    commentInput.value = "";
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -120,8 +121,6 @@ async function handleAddComment(postId) {
       </p>
     `
     );
-
-    commentInput.value = "";
   } catch (error) {
     console.error("Error adding comment:", error);
     alert("Failed to add comment");

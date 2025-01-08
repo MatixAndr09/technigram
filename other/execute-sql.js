@@ -12,7 +12,7 @@ const client = new Client({
   ssl: sslConfig,
 });
 
-const method = "create"; //  "create"/"insert"/"select"/"select where"/"drop"/"update"/"delete"
+const method = "select"; //  "create"/"insert"/"select"/"select where"/"drop"/"update"/"delete"
 
 const dropTablesQuery = `
 DROP TABLE IF EXISTS users CASCADE;
@@ -59,9 +59,9 @@ const insertPostQuery = `
   ('exampleUser', 'exampleUser@example.com', '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', 'example_token');
 `;
 
-// INSERT INTO posts (post_id, creator_id, title, content, likes) VALUES (2, 1, 'Technigram 0.3.2v DevLog', 'Well, uh, działają pfp w dużym skrócie. Pozostało jeszcze tylko, post making, post matching, login, register, actually being logged in, and much more things that im to lazy to talk about', 7);
+// INSERT INTO posts (creator_id, title, content, likes) VALUES (1, 'test', 'test', 21);
 
-const selectQuery = "SELECT * FROM users";
+const selectQuery = "SELECT id, username FROM users";
 // const selectQuery = "SELECT token FROM users WHERE id = 1;";
 // const selectQuery = "SELECT * FROM posts";
 // const selectQuery = "SELECT * FROM comments";

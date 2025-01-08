@@ -1,7 +1,7 @@
 server_adress = "https://technigram.onrender.com";
 document
   .querySelector("#addPostForm")
-  .addEventListener("submit", async (event) => {
+  .addEventListener("sub  mit", async (event) => {
     event.preventDefault();
 
     const title = document.querySelector("#title").value;
