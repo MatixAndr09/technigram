@@ -1,19 +1,21 @@
-# Here you go, Technigram
+# Technigram - SvelteKit v0.0.1
 
-Is it pretty?
+So basicly this is a technigram remake becouse the current one is bad
 
-absolutely not.
+> [!WARNING]
+> This site is in very Alfa stage and its not optimalized and have potential security vunerblities. DO NOT DEPLOY TO PRODUCTION
 
-is it here
+### Contributing
 
-yes
+Currently, I don't need help with the project, so any pull requests etc. will not be taken into account (in fact, they will be ignored). In short, no contributing for now
 
-one thing i can say for future developers
+### Technologies
 
-## Dont use chat gpt for such projects. it's not worth your sanity, time and all else it takes
-
-just understand your topic, it doesn't look or feel so at first, but it is by far worth it
-
-
-
-I'll make it prettier and readable in near time, now im trying to make it work back tho
+Currently i will be using (or i am currently using):
+- SvelteKit
+- TailwindCSS
+- SCSS
+- Svelte
+- TypeScript
+- Appwrite (for backend)
+- Redis (for database)
