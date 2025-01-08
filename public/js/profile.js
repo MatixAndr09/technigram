@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 document.addEventListener("DOMContentLoaded", async () => {
   let currentUserId;
   let currentUserName;

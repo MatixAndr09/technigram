@@ -1,5 +1,8 @@
+require("dotenv").config();
+
 let currentUserId;
 let currentUserName;
+
 // let loggedInAsMessage = document.querySelector(`.headline`);
 // const loggedInAsMessage = document.querySelector("#currently-logged-user`);
 // loggedInAsMessage.innerHTML = "yes";
