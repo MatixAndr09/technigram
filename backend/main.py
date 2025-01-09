@@ -5,7 +5,7 @@ import random
 import string
 import os
 
-def random_string(length=10):
+def random_string(length=256):
     letters = string.ascii_letters
     return ''.join(random.choice(letters) for i in range(length))
 
@@ -34,7 +34,7 @@ def main(context):
 
     if path == "/ping":
         return context.res.text("Pong")
-    elif path == "/auth/google/":
+    elif path == "/auth/google":
         return context.res.text(random_string())
     elif path.startswith("/posts/") and path.endswith("/comments"):
         return context.res.text(random_string())
