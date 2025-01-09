@@ -193,7 +193,9 @@
         }
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
+    import { onMount } from 'svelte';
+
+    onMount(async () => {
         try {
             const currentUserData = localStorage.getItem("currentUser");
 

@@ -89,6 +89,6 @@
 </main>
 
 <style lang="scss">
-    @import "../styles/reset.scss";
-    @import "../styles/add_post.scss";
+    @import "../../styles/reset.scss";
+    @import "../../styles/add_post.scss";
 </style>
