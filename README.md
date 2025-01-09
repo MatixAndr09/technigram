@@ -1,4 +1,4 @@
-# Technigram - SvelteKit v0.0.2
+# Technigram - SvelteKit v0.0.4
 
 So basicly this is a technigram remake becouse the current one is bad
 
