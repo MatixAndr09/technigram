@@ -1,7 +1,15 @@
+import os
+
+libs = ["appwrite","random","string"]
+for lib in libs:
+    try:
+        __import__(lib)
+    except ImportError:
+        os.system(f"pip install {lib}")
+
 from appwrite.exception import AppwriteException
 from appwrite.services.users import Users
 from appwrite.client import Client
-import os
 import random
 import string
 
