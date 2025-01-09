@@ -28,6 +28,10 @@ config.json
 .cache/
 .cache.json
 
-# here's some mine
-
+# Env files
 .env
+
+# Svelte
+
+.svelte-kit/
+package-lock.json

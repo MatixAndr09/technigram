@@ -1,17 +1,14 @@
-# To do
+# TODO
 
-last activity done
+- [ ] Transfer from HTML+CSS+JS+POSTRGRES SQL -> SvelteKit+SCSS+REDIS+TS
 
-tokenizacja (done)
-
-Images in posts (max 4, stored in base64)
-
-profile blocking
-
-Post matchmaking (and follows)
-
-style
-
-BanList done
-
-likes
+- [ ] API Endpoints (https://677fa88cdec95724eace.appwrite.global)
+    - [ ] /auth/google/
+    - [ ] /posts/$id
+    - [ ] /posts/$id/comments
+    - [ ] /posts/count
+    - [ ] /posts
+    - [ ] /login
+    - [ ] /profile
+    - [ ] /add_post
+    - [ ] /profilePicture/$id
