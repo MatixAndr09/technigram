@@ -4,6 +4,7 @@ from appwrite.client import Client
 import random
 import string
 import os
+from appwrite.services.account import Account
 
 def random_string(length=256):
     letters = string.ascii_letters
@@ -23,19 +24,35 @@ def main(context):
 
     try:
         response = users.list()
-        # Log messages and errors to the Appwrite Console
-        # These logs won't be seen by your end users
         context.log("Total users: " + str(response["total"]))
     except AppwriteException as err:
         context.error("Could not list users: " + repr(err))
 
-    # The req object contains the request data
     path = context.req.path
 
     if path == "/ping":
         return context.res.text("Pong")
     elif path == "/auth/google":
-        return context.res.text(random_string())
+        account = Account(client)
+
+        try:
+            session = account.create_oauth2_session(
+            provider="google",
+            success=os.environ["APPWRITE_FUNCTION_SUCCESS_URL"],
+            failure=os.environ["APPWRITE_FUNCTION_FAILURE_URL"]
+            )
+            user = account.get()
+            user_data = {
+            "imie": user["name"],
+            "nazwisko": user["surname"],
+            "pfp": user["prefs"]["profilePicture"],
+            "email": user["email"]
+            }
+            return context.res.json(user_data)
+        except AppwriteException as err:
+            context.error("Google authentication failed: " + repr(err))
+            return context.res.json({"error": "Authentication failed"}, status=500)
+        
     elif path.startswith("/posts/") and path.endswith("/comments"):
         return context.res.text(random_string())
     elif path.startswith("/posts/") and path.count('/') == 2:
