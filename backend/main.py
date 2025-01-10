@@ -33,20 +33,22 @@ def main(context):
     if path == "/ping":
         return context.res.text("Pong")
     elif path == "/auth/google":
+        client = Client()
+        client.set_endpoint('https://cloud.appwrite.io/v1')  # Your API Endpoint
+        client.set_project('<PROJECT_ID>')  # Your project ID
+
         account = Account(client)
-        
-        try:
-            google_auth_url = account.create_oauth2_session_url(
-                provider='google',
-                success="https://https://677fa88cdec95724eace.appwrite.global/auth/success", 
-                failure="https://https://677fa88cdec95724eace.appwrite.global/auth/failure"
-            )
-            
-            return context.res.json({"auth_url": google_auth_url})
-            
-        except AppwriteException as err:
-            context.error("OAuth2 Error: " + repr(err))
-            return context.res.json({"error": "Failed to generate Google OAuth2 URL"})
+
+            # Redirect to Google OAuth login page
+        account.create_oauth2_session(
+            provider="google",
+            success="https://example.com/success",
+            failure="https://example.com/failed",
+            scopes=["email", "profile"]  # Optional: Add Google-specific scopes if needed
+        )
+
+
+
     elif path == "/auth/success":
         return context.res.text("You have successfully authenticated with Google")
     elif path == "/auth/failure":
