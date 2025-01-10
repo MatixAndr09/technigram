@@ -36,10 +36,10 @@ def main(context):
         account = Account(client)
 
         try:
-            session = account.create_oauth2_session(
-            provider="google",
-            success=os.environ["APPWRITE_FUNCTION_SUCCESS_URL"],
-            failure=os.environ["APPWRITE_FUNCTION_FAILURE_URL"]
+            session = account.create_session(
+                provider="google",
+                success=os.environ["APPWRITE_FUNCTION_SUCCESS_URL"],
+                failure=os.environ["APPWRITE_FUNCTION_FAILURE_URL"]
             )
             user = account.get()
             user_data = {
