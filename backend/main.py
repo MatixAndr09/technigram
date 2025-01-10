@@ -34,35 +34,23 @@ def main(context):
         return context.res.text("Pong")
     elif path == "/auth/google":
         account = Account(client)
-
-        try:
-            success_url = os.environ.get("APPWRITE_FUNCTION_SUCCESS_URL", "https://default.success.url")
-            failure_url = os.environ.get("APPWRITE_FUNCTION_FAILURE_URL", "https://default.failure.url")
-
-            if success_url == "https://default.success.url":
-                context.log("Using default success URL")
-            if failure_url == "https://default.failure.url":
-                context.log("Using default failure URL")
-
-            session = account.create_session(
-                provider="google",
-                success=success_url,
-                failure=failure_url
-            )
-
-            user = account.get()
-            user_data = {
-                "imie": user["name"],
-                "nazwisko": user["surname"],
-                "pfp": user["prefs"]["profilePicture"],
-                "email": user["email"]
-            }
-            
-            return context.res.json(user_data)
-        except AppwriteException as err:
-            context.error("Google authentication failed: " + repr(err))
-            return context.res.json({"error": "Authentication failed"}, status=500)
         
+        try:
+            google_auth_url = account.create_oauth2_session_url(
+                provider='google',
+                success="https://https://677fa88cdec95724eace.appwrite.global/auth/success", 
+                failure="https://https://677fa88cdec95724eace.appwrite.global/auth/failure"
+            )
+            
+            return context.res.json({"auth_url": google_auth_url})
+            
+        except AppwriteException as err:
+            context.error("OAuth2 Error: " + repr(err))
+            return context.res.json({"error": "Failed to generate Google OAuth2 URL"})
+    elif path == "/auth/success":
+        return context.res.text("You have successfully authenticated with Google")
+    elif path == "/auth/failure":
+        return context.res.text("You have NOT successfully authenticated with Google")
     elif path.startswith("/posts/") and path.endswith("/comments"):
         return context.res.text(random_string())
     elif path.startswith("/posts/") and path.count('/') == 2:
