@@ -40,12 +40,9 @@ def main(context):
             failure_url = os.environ.get("APPWRITE_FUNCTION_FAILURE_URL", "https://default.failure.url")
 
             if success_url == "https://default.success.url":
-                context.error("APPWRITE_FUNCTION_SUCCESS_URL is not set")
-                return context.res.json({"error": "Internal server error"}, status=500)
-            
+                context.log("Using default success URL")
             if failure_url == "https://default.failure.url":
-                context.error("APPWRITE_FUNCTION_FAILURE_URL is not set")
-                return context.res.json({"error": "Internal server error"}, status=500)
+                context.log("Using default failure URL")
 
             session = account.create_session(
                 provider="google",
@@ -85,6 +82,6 @@ def main(context):
 
     return context.res.json(
         {
-            "Err": "404 Not Found"
+            "Err": "404: Page you looking for was not found"
         }
     )
