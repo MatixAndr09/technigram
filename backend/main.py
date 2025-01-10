@@ -36,18 +36,31 @@ def main(context):
         account = Account(client)
 
         try:
+            success_url = os.environ.get("APPWRITE_FUNCTION_SUCCESS_URL", "https://default.success.url")
+            failure_url = os.environ.get("APPWRITE_FUNCTION_FAILURE_URL", "https://default.failure.url")
+
+            if success_url == "https://default.success.url":
+                context.error("APPWRITE_FUNCTION_SUCCESS_URL is not set")
+                return context.res.json({"error": "Internal server error"}, status=500)
+            
+            if failure_url == "https://default.failure.url":
+                context.error("APPWRITE_FUNCTION_FAILURE_URL is not set")
+                return context.res.json({"error": "Internal server error"}, status=500)
+
             session = account.create_session(
                 provider="google",
-                success=os.environ["APPWRITE_FUNCTION_SUCCESS_URL"],
-                failure=os.environ["APPWRITE_FUNCTION_FAILURE_URL"]
+                success=success_url,
+                failure=failure_url
             )
+
             user = account.get()
             user_data = {
-            "imie": user["name"],
-            "nazwisko": user["surname"],
-            "pfp": user["prefs"]["profilePicture"],
-            "email": user["email"]
+                "imie": user["name"],
+                "nazwisko": user["surname"],
+                "pfp": user["prefs"]["profilePicture"],
+                "email": user["email"]
             }
+            
             return context.res.json(user_data)
         except AppwriteException as err:
             context.error("Google authentication failed: " + repr(err))
