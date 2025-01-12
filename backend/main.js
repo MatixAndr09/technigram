@@ -1,10 +1,7 @@
 import { Client, Account, OAuthProvider } from "appwrite";
 
 export default async ({ req, res, log, error }) => {
-  const client = new Client()
-    .setEndpoint(process.env.APPWRITE_FUNCTION_API_ENDPOINT)
-    .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
-    .setKey(req.headers['x-appwrite-key'] ?? '');
+  const client = new Client().setEndpoint('https://678273d353eb3e147e60.appwrite.global').setProject('678273d2002b8624f985');  
 
   if (req.path === "/ping") {
     return res.text("Pong");
