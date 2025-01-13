@@ -26,9 +26,6 @@ export default async ({
         );
 
         const session = await account.getSession('current');
-        console.log(session.provider);
-        console.log(session.providerUid);
-        console.log(session.providerAccessToken);
         return res.text("session provider: " + session.provider + " session uid: " + session.providerUid + " session acc token: " + session.providerAccessToken);
     }
 };
