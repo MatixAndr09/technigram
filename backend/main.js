@@ -25,7 +25,6 @@ export default async ({
             'https://www.google.com/search?q=failed&client=opera&hs=rq8&sca_esv=b13e22941889ff0e&udm=2&biw=1866&bih=911&sxsrf=ADLYWIIgs9ecVy_LxCxdSEOvAgAn29h03Q%3A1736712244835&ei=NCCEZ9TVMse8i-gPhputCA&ved=0ahUKEwjUv7ij_fCKAxVH3gIHHYZNCwEQ4dUDCBE&uact=5&oq=failed&gs_lp=EgNpbWciBmZhaWxlZDIKEAAYgAQYQxiKBTIFEAAYgAQyBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABEjtC1DNBFimCHABeACQAQCYAcEBoAGcB6oBAzAuNrgBA8gBAPgBAZgCB6ACtgfCAg0QABiABBixAxhDGIoFwgIGEAAYBxgewgILEAAYgAQYsQMYgwHCAggQABiABBixA8ICEBAAGIAEGLEDGEMYgwEYigXCAg4QABiABBixAxiDARiKBZgDAIgGAZIHAzEuNqAHox4&sclient=img#vhid=nO-4aAaaWmZ5eM&vssid=mosaic'
         );
 
-        const session = await account.getSession('current');
-        return res.text("session provider: " + session.provider + " session uid: " + session.providerUid + " session acc token: " + session.providerAccessToken);
+        return res.text("i think session was created so it's probably working idk");
     }
 };
