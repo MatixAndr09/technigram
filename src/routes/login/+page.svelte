@@ -20,7 +20,7 @@
     <main>
         <h2>Yes, you can only Login with</h2>
         <div id="googleLogin">
-            <a href="https://677fa88cdec95724eace.appwrite.global/auth/google">
+            <a href="678273d353eb3e147e60.appwrite.global/auth/google">
                 <img
                     src="https://static-00.iconduck.com/assets.00/google-icon-2048x2048-czn3g8x8.png"
                     alt="Google Login"
